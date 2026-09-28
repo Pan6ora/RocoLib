@@ -534,7 +534,7 @@ def process_logout_request(logout_user):
     return redirect(url_for("home"))
 
 
-def process_signup_request(request, db, current_user, login_user):
+def process_signup_request(request, session, db, current_user, login_user):
     if current_user.is_authenticated:
         return redirect(url_for("home"))
     form = SignupForm()
@@ -550,6 +550,7 @@ def process_signup_request(request, db, current_user, login_user):
             # Create and save user
             user = User(name=name, email=email)
             user.set_password(password)
+            user.preferences.default_gym = utils.get_current_gym(session, db)
             user.save(db)
             # Keep user logged in
             login_user(user, remember=True)

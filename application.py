@@ -256,7 +256,7 @@ def login() -> Union[str, Response]:
 @app.route("/signup/", methods=["GET", "POST"])
 def show_signup_form() -> Union[str, Response]:
     return request_processor.process_signup_request(
-        request, g.db, current_user, login_user
+        request, session, g.db, current_user, login_user
     )
 
 
