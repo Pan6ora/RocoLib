@@ -290,20 +290,27 @@ def load_data(request: Request) -> Tuple[dict, bool]:
     :return: Dictionary with the data from the request and a boolean indicating if the data came from a form
     :rtype: Tuple[dict, bool]
     """
-    # Handle the different content types
-    # request.get_data()  # required?
-    if request.json:
-        return request.json, False
+    json_data = request.get_json(silent=True)
+    if json_data is not None:
+        return json_data, False
+
     elif request.form:
-        return request.form, True
+        return request.form.to_dict(), True
+
     elif request.data:
         try:
             return json.loads(request.data), False
-        except json.JSONDecodeError:
-            # try to load from query string
-            return urlparse.parse_qs(request.data), False
+        except (json.JSONDecodeError, TypeError):
+            try:
+                data_str = request.data.decode("utf-8")
+                parsed = parse_qs(data_str)
+                return {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}, False
+            except Exception:
+                pass
+
     elif request.args:
-        return request.args, False
+        return request.args.to_dict(), False
+
     else:
         return dict(), False
 
