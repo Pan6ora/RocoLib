@@ -15,6 +15,19 @@ from shutil import copyfile
 walls_path = "./static/images/walls"
 image_extensions = (".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".gif")
 
+CREDS = ""
+
+
+def set_creds_file(creds: str) -> str:
+    global CREDS
+    if creds == "dev":
+        CREDS = "creds.dev.txt"
+    elif creds == "local":
+        CREDS = "creds.local.txt"
+    else:
+        CREDS = "creds.txt"
+    return CREDS
+
 
 class Coordinates:
     def __init__(
@@ -68,7 +81,7 @@ def create_walls_collection(gym_code: str, radius: float = 0.02) -> None:
     """
     Create the new gym collection and include its walls
     """
-    with open("creds.txt") as f:
+    with open(CREDS) as f:
         creds = f.readline()
     myclient = pymongo.MongoClient(creds)
     db = myclient["RocoLib"]
@@ -99,7 +112,7 @@ def add_gym_to_gyms_list(
     """
     Add the new gym to the list of supported gyms
     """
-    with open("creds.txt") as f:
+    with open(CREDS) as f:
         creds = f.readline()
     myclient = pymongo.MongoClient(creds)
     db = myclient["RocoLib"]
@@ -189,7 +202,19 @@ parser.add_argument(
     type=float,
     required=False,
 )
+parser.add_argument(
+    "--creds",
+    choices=["docker", "local", "dev"],
+    help="Where to find database credentials",
+    required=False,
+)
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    add_new_gym(args.code, args.name, args.images, args.location)
+    set_creds_file(args.creds)
+    if os.path.isfile(CREDS):
+        add_new_gym(args.code, args.name, args.images, args.location)
+    else:
+        print(
+            f"The file {CREDS} does not exist. Use --creds to set creds mode (docker/dev/local)"
+        )

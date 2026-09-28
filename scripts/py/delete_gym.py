@@ -1,3 +1,4 @@
+import os
 import argparse
 import pymongo
 import shutil
@@ -10,12 +11,25 @@ import shutil
 
 walls_path = "./static/images/walls"
 
+CREDS = ""
+
+
+def set_creds_file(creds: str) -> str:
+    global CREDS
+    if creds == "dev":
+        CREDS = "creds.dev.txt"
+    elif creds == "local":
+        CREDS = "creds.local.txt"
+    else:
+        CREDS = "creds.txt"
+    return CREDS
+
 
 def delete_walls_collection(gym_code: str) -> None:
     """
     Create the new gym collection and include its walls
     """
-    with open("creds.txt") as f:
+    with open(CREDS) as f:
         creds = f.readline()
     myclient = pymongo.MongoClient(creds)
     db = myclient["RocoLib"]
@@ -27,7 +41,7 @@ def delete_boulders_collection(gym_code: str) -> None:
     """
     Delete the whole boulder collection from the given gym
     """
-    with open("creds.txt") as f:
+    with open(CREDS) as f:
         creds = f.readline()
     myclient = pymongo.MongoClient(creds)
     db = myclient["RocoLib"]
@@ -39,7 +53,7 @@ def delete_gym_from_gyms_list(gym_code: str) -> None:
     """
     Delete the gym from the list of supported gyms
     """
-    with open("creds.txt") as f:
+    with open(CREDS) as f:
         creds = f.readline()
     myclient = pymongo.MongoClient(creds)
     db = myclient["RocoLib"]
@@ -79,8 +93,19 @@ def delete_gym(gym_code: str) -> None:
 
 parser = argparse.ArgumentParser(description="Rocolib gym deletion tool")
 parser.add_argument("-c", "--code", help="Gym internal code", type=str, required=True)
-
+parser.add_argument(
+    "--creds",
+    choices=["docker", "local", "dev"],
+    help="Where to find database credentials",
+    required=False,
+)
 args = parser.parse_args()
 
 if __name__ == "__main__":
-    delete_gym(args.code)
+    set_creds_file(args.creds)
+    if os.path.isfile(CREDS):
+        delete_gym(args.code)
+    else:
+        print(
+            f"The file {CREDS} does not exist. Use --creds to set creds mode (docker/dev/local)"
+        )

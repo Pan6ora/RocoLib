@@ -1,8 +1,10 @@
 from sys import argv
 
 CREDS = "creds.txt"
-CREDS_DEV = "creds.dev.txt"
-CREDS_LOCAL = "creds.local.txt"
+if len(argv) > 1 and str(argv[1]) == "dev":
+    CREDS = "creds.dev.txt"
+if len(argv) > 1 and str(argv[1]) == "local":
+    CREDS = "creds.local.txt"
 
 PORT = 5050
 
