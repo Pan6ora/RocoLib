@@ -6,13 +6,13 @@ import operator
 
 
 def get_db_boulders_table():
-    dynamodb = boto3.resource('dynamodb', 'eu-west-3')
-    return dynamodb.Table('Boulders')
+    dynamodb = boto3.resource("dynamodb", "eu-west-3")
+    return dynamodb.Table("Boulders")
 
 
 def get_db_routes_table():
-    dynamodb = boto3.resource('dynamodb', 'eu-west-3')
-    return dynamodb.Table('Routes')
+    dynamodb = boto3.resource("dynamodb", "eu-west-3")
+    return dynamodb.Table("Routes")
 
 
 def decimal_default(obj):
@@ -26,9 +26,9 @@ def get_items(table):
 
 
 def put_item(table, item):
-    for hold in item['holds']:
-        hold['x'] = Decimal(str(hold['x']))
-        hold['y'] = Decimal(str(hold['y']))
+    for hold in item["holds"]:
+        hold["x"] = Decimal(str(hold["x"]))
+        hold["y"] = Decimal(str(hold["y"]))
     return table.put_item(Item=item)
 
 
@@ -49,8 +49,5 @@ def get_items_filtered(table, conditions=None, equals=None, contains=None):
             if key in equals:
                 condition = operator.__and__(condition, Key(key).eq(value))
             if key in contains:
-                condition = operator.__and__(
-                    condition, Key(key).begins_with(value))
-    return json.dumps(table.scan(
-        FilterExpression=condition
-    ), default=decimal_default)
+                condition = operator.__and__(condition, Key(key).begins_with(value))
+    return json.dumps(table.scan(FilterExpression=condition), default=decimal_default)

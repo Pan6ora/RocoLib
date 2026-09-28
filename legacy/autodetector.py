@@ -27,6 +27,6 @@ img_clahe = clahe.apply(img)
 
 img_edges = cv2.Canny(img_eq, 100, 200)
 
-cv2.imshow('image_edges', cv2.resize(img_edges, (504, 672)))
+cv2.imshow("image_edges", cv2.resize(img_edges, (504, 672)))
 cv2.waitKey(0)
 cv2.destroyAllWindows()

@@ -7,55 +7,55 @@ from src.config import *
 
 import api.api_request_processor as api_request_processor
 
-API_VERSION = 'v1'
+API_VERSION = "v1"
 
-auth = HTTPTokenAuth(scheme='Bearer')
+auth = HTTPTokenAuth(scheme="Bearer")
 
 api_blueprint = Blueprint(
-    'api_blueprint',
+    "api_blueprint",
     __name__,
-    static_folder='static',
-    template_folder='templates',
-    url_prefix=f'/api/{API_VERSION}'
+    static_folder="static",
+    template_folder="templates",
+    url_prefix=f"/api/{API_VERSION}",
 )
 
 
 @auth.verify_token
 def verify_token(token: str) -> bool:
-  """
-  Validate the token and return a boolean balue indicating whether the token is valid
+    """
+    Validate the token and return a boolean balue indicating whether the token is valid
 
-  :param token: token to validate
-  :type token: str
-  :return: Token validity. True if valid, False otherwise
-  :rtype: bool
-  """
-  user = User.verify_auth_token(token, current_app, g.db)
-  if user is None:
-    return False
-  g.user = user
-  return True
+    :param token: token to validate
+    :type token: str
+    :return: Token validity. True if valid, False otherwise
+    :rtype: bool
+    """
+    user = User.verify_auth_token(token, current_app, g.db)
+    if user is None:
+        return False
+    g.user = user
+    return True
 
 
 @api_blueprint.before_request
 def open_database_connection():
     """
-    Open a new database connection before processing the request and store 
+    Open a new database connection before processing the request and store
     it in the global request g object so that it can be accessed from within
     the request
     """
     g.db = get_db_connection()
 
 
-@api_blueprint.route('/docs/swagger.json')
+@api_blueprint.route("/docs/swagger.json")
 def api_docs() -> Response:
     """
     Raw swagger document endpoint
     """
-    return send_from_directory('static', 'swagger/swagger.json')
+    return send_from_directory("static", "swagger/swagger.json")
 
 
-@api_blueprint.route('/gym/list', methods=['GET'])
+@api_blueprint.route("/gym/list", methods=["GET"])
 def get_gyms() -> Response:
     """Gym list.
     ---
@@ -100,7 +100,7 @@ def get_gyms() -> Response:
     return api_request_processor.process_get_gyms_request(g.db)
 
 
-@api_blueprint.route('/gym/<string:gym_id>/walls', methods=['GET'])
+@api_blueprint.route("/gym/<string:gym_id>/walls", methods=["GET"])
 def get_gym_walls(gym_id: str) -> Response:
     """Walls associated to the given gym.
     ---
@@ -153,7 +153,7 @@ def get_gym_walls(gym_id: str) -> Response:
     return api_request_processor.process_get_gym_walls_request(request, g.db, gym_id)
 
 
-@api_blueprint.route('/gym/<string:gym_id>/name', methods=['GET'])
+@api_blueprint.route("/gym/<string:gym_id>/name", methods=["GET"])
 def get_gym_pretty_name(gym_id: str) -> Response:
     """Given a gym id get its display name
     ---
@@ -201,7 +201,7 @@ def get_gym_pretty_name(gym_id: str) -> Response:
     return api_request_processor.process_get_gym_pretty_name(g.db, gym_id)
 
 
-@api_blueprint.route('/gym/<string:gym_id>/<string:wall_section>/name', methods=['GET'])
+@api_blueprint.route("/gym/<string:gym_id>/<string:wall_section>/name", methods=["GET"])
 def get_gym_wall_name(gym_id: str, wall_section: str) -> Response:
     """Get a wall name given the gym and the section
     ---
@@ -250,7 +250,8 @@ def get_gym_wall_name(gym_id: str, wall_section: str) -> Response:
     """
     return api_request_processor.process_get_gym_wall_name(g.db, gym_id, wall_section)
 
-@api_blueprint.route('/circuits/<string:gym_id>/list', methods=['GET'])
+
+@api_blueprint.route("/circuits/<string:gym_id>/list", methods=["GET"])
 def get_gym_circuits(gym_id: str) -> Response:
     """Circuits associated to the given gym.
     ---
@@ -297,7 +298,8 @@ def get_gym_circuits(gym_id: str) -> Response:
     """
     return api_request_processor.process_get_gym_circuits_request(g.db, gym_id)
 
-@api_blueprint.route('/circuits/<string:gym_id>/<string:circuit_id>', methods=['GET'])
+
+@api_blueprint.route("/circuits/<string:gym_id>/<string:circuit_id>", methods=["GET"])
 def get_circuit_by_id(gym_id: str, circuit_id: str) -> Response:
     """Get circuit by id.
     ---
@@ -344,10 +346,14 @@ def get_circuit_by_id(gym_id: str, circuit_id: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_get_circuit_by_id_request(g.db, gym_id, circuit_id)
+    return api_request_processor.process_get_circuit_by_id_request(
+        g.db, gym_id, circuit_id
+    )
 
 
-@api_blueprint.route('/circuits/<string:gym_id>/name/<string:circuit_name>', methods=['GET'])
+@api_blueprint.route(
+    "/circuits/<string:gym_id>/name/<string:circuit_name>", methods=["GET"]
+)
 def get_circuit_by_name(gym_id: str, circuit_name: str) -> Response:
     """Get circuit by name.
     ---
@@ -394,10 +400,14 @@ def get_circuit_by_name(gym_id: str, circuit_name: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_get_circuit_by_name_request(g.db, gym_id, circuit_name)
+    return api_request_processor.process_get_circuit_by_name_request(
+        g.db, gym_id, circuit_name
+    )
 
 
-@api_blueprint.route('/circuits/<string:gym_id>/<string:wall_section>/create', methods=['POST'])
+@api_blueprint.route(
+    "/circuits/<string:gym_id>/<string:wall_section>/create", methods=["POST"]
+)
 def circuit_create(gym_id: str, wall_section: str) -> Response:
     """Create a new circuit linked to the given gym and wall section
     ---
@@ -456,9 +466,12 @@ def circuit_create(gym_id: str, wall_section: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_circuit_create_request(request, g.db, gym_id, wall_section)
+    return api_request_processor.process_circuit_create_request(
+        request, g.db, gym_id, wall_section
+    )
 
-@api_blueprint.route('/boulders/<string:gym_id>/list', methods=['GET'])
+
+@api_blueprint.route("/boulders/<string:gym_id>/list", methods=["GET"])
 def get_gym_boulders(gym_id: str) -> Response:
     """Boulders associated to the given gym.
     ---
@@ -506,7 +519,7 @@ def get_gym_boulders(gym_id: str) -> Response:
     return api_request_processor.process_get_gym_boulders_request(g.db, gym_id)
 
 
-@api_blueprint.route('/boulders/<string:gym_id>/<string:boulder_id>', methods=['GET'])
+@api_blueprint.route("/boulders/<string:gym_id>/<string:boulder_id>", methods=["GET"])
 def get_boulder_by_id(gym_id: str, boulder_id: str) -> Response:
     """Get boulder by id.
     ---
@@ -553,10 +566,14 @@ def get_boulder_by_id(gym_id: str, boulder_id: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_get_boulder_by_id_request(g.db, gym_id, boulder_id)
+    return api_request_processor.process_get_boulder_by_id_request(
+        g.db, gym_id, boulder_id
+    )
 
 
-@api_blueprint.route('/boulders/<string:gym_id>/name/<string:boulder_name>', methods=['GET'])
+@api_blueprint.route(
+    "/boulders/<string:gym_id>/name/<string:boulder_name>", methods=["GET"]
+)
 def get_boulder_by_name(gym_id: str, boulder_name: str) -> Response:
     """Get boulder by name.
     ---
@@ -603,10 +620,14 @@ def get_boulder_by_name(gym_id: str, boulder_name: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_get_boulder_by_name_request(g.db, gym_id, boulder_name)
+    return api_request_processor.process_get_boulder_by_name_request(
+        g.db, gym_id, boulder_name
+    )
 
 
-@api_blueprint.route('/boulders/<string:gym_id>/<string:wall_section>/create', methods=['POST'])
+@api_blueprint.route(
+    "/boulders/<string:gym_id>/<string:wall_section>/create", methods=["POST"]
+)
 def boulder_create(gym_id: str, wall_section: str) -> Response:
     """Create a new boulder linked to the given gym and wall section
     ---
@@ -665,10 +686,14 @@ def boulder_create(gym_id: str, wall_section: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_boulder_create_request(request, g.db, gym_id, wall_section)
+    return api_request_processor.process_boulder_create_request(
+        request, g.db, gym_id, wall_section
+    )
 
 
-@api_blueprint.route('/boulders/<string:gym_id>/<string:boulder_id>/rate', methods=['POST'])
+@api_blueprint.route(
+    "/boulders/<string:gym_id>/<string:boulder_id>/rate", methods=["POST"]
+)
 def rate_boulder(gym_id: str, boulder_id: str) -> Response:
     """Rate a boulder problem
     ---
@@ -727,10 +752,12 @@ def rate_boulder(gym_id: str, boulder_id: str) -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_rate_boulder_request(request, g.db, gym_id, boulder_id)
+    return api_request_processor.process_rate_boulder_request(
+        request, g.db, gym_id, boulder_id
+    )
 
 
-@api_blueprint.route('/user/signup', methods=['POST'])
+@api_blueprint.route("/user/signup", methods=["POST"])
 def new_user() -> Response:
     """Create a new user.
     ---
@@ -787,7 +814,7 @@ def new_user() -> Response:
     return api_request_processor.process_new_user_request(request, g.db)
 
 
-@api_blueprint.route('/user/auth', methods=['POST'])
+@api_blueprint.route("/user/auth", methods=["POST"])
 def get_auth_token() -> Response:
     """
     Given a username/email and a password, get an auth token if the user exists
@@ -843,10 +870,12 @@ def get_auth_token() -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_get_auth_token_request(request, g.db, current_app)
+    return api_request_processor.process_get_auth_token_request(
+        request, g.db, current_app
+    )
 
 
-@api_blueprint.route('/user/ticklist/boulder/done', methods=['POST'])
+@api_blueprint.route("/user/ticklist/boulder/done", methods=["POST"])
 @auth.login_required
 def mark_boulder_as_done() -> Response:
     """Mark a boulder problem as done
@@ -903,10 +932,12 @@ def mark_boulder_as_done() -> Response:
           description:
             Server Error
     """
-    return api_request_processor.process_mark_boulder_as_done_request(request, g.db, g.user)
+    return api_request_processor.process_mark_boulder_as_done_request(
+        request, g.db, g.user
+    )
 
 
-@api_blueprint.route('/user/ticklist', methods=['GET'])
+@api_blueprint.route("/user/ticklist", methods=["GET"])
 @auth.login_required
 def get_user_ticklist() -> Response:
     """
@@ -958,7 +989,7 @@ def get_user_ticklist() -> Response:
     return api_request_processor.process_get_user_ticklist_request(g.db, g.user)
 
 
-@api_blueprint.route('/user/test-auth', methods=['GET'])
+@api_blueprint.route("/user/test-auth", methods=["GET"])
 @auth.login_required
 def test_auth() -> Response:
     """
@@ -1009,7 +1040,8 @@ def test_auth() -> Response:
     """
     return api_request_processor.process_test_auth_request(g.user)
 
-@api_blueprint.route('/user/preferences', methods=['GET'])
+
+@api_blueprint.route("/user/preferences", methods=["GET"])
 @auth.login_required
 def get_user_preferences() -> Response:
     """

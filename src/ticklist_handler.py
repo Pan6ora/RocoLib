@@ -17,26 +17,28 @@ def get_wall_radius(wall_path: str, database: Database) -> float:
     return mongodb_controller.get_walls_radius_all(database)[wall_path]
 
 
-def delete_problem_from_ticklist(request: Request, current_user: LocalProxy, database: Database):
+def delete_problem_from_ticklist(
+    request: Request, current_user: LocalProxy, database: Database
+):
     """
     Delete a problem from a user's ticklist
     """
     # needed values: gym, id, section, is_done
-    boulder_data = make_boulder_data_valid_js(request.form.get('boulder_data'))
+    boulder_data = make_boulder_data_valid_js(request.form.get("boulder_data"))
     boulder = {
-        'gym': boulder_data.get('gym'),
-        'iden':
-            mongodb_controller.get_boulder_by_name(
-                boulder_data.get('gym'),
-                request.form.get('name'),
-                database
-        ).get('_id', ''),
-        'is_done': boulder_data.get('is_done'),
-        'section': boulder_data.get('section')
+        "gym": boulder_data.get("gym"),
+        "iden": mongodb_controller.get_boulder_by_name(
+            boulder_data.get("gym"), request.form.get("name"), database
+        ).get("_id", ""),
+        "is_done": boulder_data.get("is_done"),
+        "section": boulder_data.get("section"),
     }
     # update user's ticklist
     return [
-        TickListProblem(p) for p in mongodb_controller.delete_boulder_in_ticklist(boulder, current_user.id, database)
+        TickListProblem(p)
+        for p in mongodb_controller.delete_boulder_in_ticklist(
+            boulder, current_user.id, database
+        )
     ]
 
 
@@ -50,7 +52,7 @@ def load_user_ticklist(current_user, database: Database):
     gym_name_cache = dict()
 
     added_sections = []
-    
+
     boulder_list = []
     walls_list = []
 
@@ -60,61 +62,74 @@ def load_user_ticklist(current_user, database: Database):
         if boulder:
             # try to get walls from the cache
             walls = walls_cache.get(
-                boulder['gym'], 
+                boulder["gym"],
                 [
-                    wall['image'] for wall in mongodb_controller.get_gym_walls(
-                        boulder['gym'],
+                    wall["image"]
+                    for wall in mongodb_controller.get_gym_walls(
+                        boulder["gym"],
                         database,
-                        current_user.preferences.show_latest_walls_only
+                        current_user.preferences.show_latest_walls_only,
                     )
-                ]
+                ],
             )
-            walls_cache[boulder['gym']] = walls # update cache
+            walls_cache[boulder["gym"]] = walls  # update cache
             # filter by valid subset of walls
-            if boulder['section'] in walls:
-                boulder['feet'] = FEET_MAPPINGS[boulder['feet']]
-                boulder['safe_name'] = secure_filename(boulder['name'])
-                boulder['radius'] = get_wall_radius(
-                    boulder['gym'] + '/' + boulder['section'], database)
-                boulder['color'] = BOULDER_COLOR_MAP[boulder['difficulty']]
-                if boulder['section'] not in added_sections:
-                    added_sections.append(boulder['section'])
-                    gym_name = gym_name_cache.get(boulder['gym'], mongodb_controller.get_gym_pretty_name(boulder['gym'], database))
+            if boulder["section"] in walls:
+                boulder["feet"] = FEET_MAPPINGS[boulder["feet"]]
+                boulder["safe_name"] = secure_filename(boulder["name"])
+                boulder["radius"] = get_wall_radius(
+                    boulder["gym"] + "/" + boulder["section"], database
+                )
+                boulder["color"] = BOULDER_COLOR_MAP[boulder["difficulty"]]
+                if boulder["section"] not in added_sections:
+                    added_sections.append(boulder["section"])
+                    gym_name = gym_name_cache.get(
+                        boulder["gym"],
+                        mongodb_controller.get_gym_pretty_name(
+                            boulder["gym"], database
+                        ),
+                    )
                     wall_name = wall_name_cache.get(
-                        f'{boulder["gym"]}-{boulder["section"]}',
-                        mongodb_controller.get_wall_name(boulder['gym'], boulder['section'], database)
+                        f"{boulder['gym']}-{boulder['section']}",
+                        mongodb_controller.get_wall_name(
+                            boulder["gym"], boulder["section"], database
+                        ),
                     )
                     # update caches
-                    gym_name_cache[boulder['gym']] = gym_name
-                    wall_name_cache[f'{boulder["gym"]}-{boulder["section"]}'] = wall_name
-                    walls_list.append({
-                        'gym_name': gym_name,
-                        'image': boulder['section'],
-                        'name': wall_name
-                    })
+                    gym_name_cache[boulder["gym"]] = gym_name
+                    wall_name_cache[f"{boulder['gym']}-{boulder['section']}"] = (
+                        wall_name
+                    )
+                    walls_list.append(
+                        {
+                            "gym_name": gym_name,
+                            "image": boulder["section"],
+                            "name": wall_name,
+                        }
+                    )
 
                 boulder_list.append(boulder)
 
     return boulder_list, walls_list
 
 
-def add_boulder_to_ticklist(request_data, boulder_id, current_user, database: Database, mark_as_done=False) -> list[TickListProblem]:
+def add_boulder_to_ticklist(
+    request_data, boulder_id, current_user, database: Database, mark_as_done=False
+) -> list[TickListProblem]:
     """
     Add a boulder to a user's ticklist
     """
     # needed values: gym, id, section, is_done
     boulder = {
-        'gym': request_data.get('gym'),
-        'iden': boulder_id,
-        'is_done': True if request_data.get('is_done', '') else False,
-        'section': request_data.get('section')
+        "gym": request_data.get("gym"),
+        "iden": boulder_id,
+        "is_done": True if request_data.get("is_done", "") else False,
+        "section": request_data.get("section"),
     }
     # update user's ticklist
     return [
-        TickListProblem(p) for p in mongodb_controller.put_boulder_in_ticklist(
-            boulder,
-            current_user.id,
-            database,
-            mark_as_done
+        TickListProblem(p)
+        for p in mongodb_controller.put_boulder_in_ticklist(
+            boulder, current_user.id, database, mark_as_done
         )
     ]

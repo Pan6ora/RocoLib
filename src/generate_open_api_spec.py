@@ -1,9 +1,19 @@
 import json
-from api.blueprint import circuit_create, get_auth_token, get_boulder_by_id, get_boulder_by_name
+from api.blueprint import (
+    circuit_create,
+    get_auth_token,
+    get_boulder_by_id,
+    get_boulder_by_name,
+)
 from api.blueprint import get_gym_boulders, get_gym_pretty_name, get_gym_wall_name
 from api.blueprint import get_gyms, get_gym_walls, boulder_create, test_auth, new_user
 from api.blueprint import get_user_ticklist, rate_boulder, mark_boulder_as_done
-from api.blueprint import get_user_preferences, get_gym_circuits, get_circuit_by_id, get_circuit_by_name
+from api.blueprint import (
+    get_user_preferences,
+    get_gym_circuits,
+    get_circuit_by_id,
+    get_circuit_by_name,
+)
 
 
 def generate_api_docs(app) -> None:
@@ -49,43 +59,38 @@ def generate_api_docs(app) -> None:
     spec.components.schema("Circuits", schema=GymCircuitListSchema)
     spec.components.schema("GymName", schema=GymNameSchema)
     spec.components.schema("WallName", schema=WallNameSchema)
-    spec.components.schema(
-        "CreateBoulder", schema=CreateBoulderRequestBody)
-    spec.components.schema("CreateBoulderResponse",
-                           schema=CreateBoulderResponseBody)
-    spec.components.schema(
-        "CreateCircuit", schema=CreateCircuitRequestBody)
-    spec.components.schema("CreateCircuitResponse",
-                           schema=CreateCircuitResponseBody)
+    spec.components.schema("CreateBoulder", schema=CreateBoulderRequestBody)
+    spec.components.schema("CreateBoulderResponse", schema=CreateBoulderResponseBody)
+    spec.components.schema("CreateCircuit", schema=CreateCircuitRequestBody)
+    spec.components.schema("CreateCircuitResponse", schema=CreateCircuitResponseBody)
     spec.components.schema("GymIDParameter", schema=GymIDParameter)
     spec.components.schema("BoulderIDParameter", schema=BoulderIDParameter)
     spec.components.schema("BoulderNameParameter", schema=BoulderNameParameter)
     spec.components.schema("CircuitIDParameter", schema=CircuitIDParameter)
     spec.components.schema("CircuitNameParameter", schema=CircuitNameParameter)
-    spec.components.schema("AuthenticationRequestBody",
-                           schema=AuthenticationRequestBody)
-    spec.components.schema("AuthenticationResponseBody",
-                           schema=AuthenticationResponseBody)
+    spec.components.schema(
+        "AuthenticationRequestBody", schema=AuthenticationRequestBody
+    )
+    spec.components.schema(
+        "AuthenticationResponseBody", schema=AuthenticationResponseBody
+    )
     spec.components.schema("SignUpRequestBody", schema=SignUpRequestBody)
     spec.components.schema("SignUpResponseBody", schema=SignUpResponseBody)
-    spec.components.schema("TestTokenResponseBody",
-                           schema=TestTokenResponseBody)
-    spec.components.schema("TicklistBoulder",
-                           schema=TicklistBoulderSchema)
-    spec.components.schema("TicklistResponseBody",
-                           schema=TicklistResponseBody)
-    spec.components.schema("RateBoulderRequestBody",
-                           schema=RateBoulderRequestBody)
-    spec.components.schema("RateBoulderResponseBody",
-                           schema=RateBoulderResponseBody)
-    spec.components.schema("MarkDoneBoulderRequestBody",
-                           schema=MarkDoneBoulderRequestBody)
-    spec.components.schema("MarkDoneBoulderResponseBody",
-                           schema=MarkDoneBoulderResponseBody)
-    spec.components.schema("UserPreferencesResponseBody",
-                           schema=UserPreferencesResponseBody)
-    spec.components.schema("ErrorResponse",
-                           schema=ErrorResponse)
+    spec.components.schema("TestTokenResponseBody", schema=TestTokenResponseBody)
+    spec.components.schema("TicklistBoulder", schema=TicklistBoulderSchema)
+    spec.components.schema("TicklistResponseBody", schema=TicklistResponseBody)
+    spec.components.schema("RateBoulderRequestBody", schema=RateBoulderRequestBody)
+    spec.components.schema("RateBoulderResponseBody", schema=RateBoulderResponseBody)
+    spec.components.schema(
+        "MarkDoneBoulderRequestBody", schema=MarkDoneBoulderRequestBody
+    )
+    spec.components.schema(
+        "MarkDoneBoulderResponseBody", schema=MarkDoneBoulderResponseBody
+    )
+    spec.components.schema(
+        "UserPreferencesResponseBody", schema=UserPreferencesResponseBody
+    )
+    spec.components.schema("ErrorResponse", schema=ErrorResponse)
 
     with app.test_request_context():
         spec.path(view=get_gyms)
@@ -107,5 +112,5 @@ def generate_api_docs(app) -> None:
         spec.path(view=rate_boulder)
         spec.path(view=mark_boulder_as_done)
         spec.path(view=get_user_preferences)
-    with open('./static/swagger/swagger.json', 'w') as f:
+    with open("./static/swagger/swagger.json", "w") as f:
         json.dump(spec.to_dict(), f)

@@ -4,10 +4,8 @@ import os
 
 import argparse
 
-parser = argparse.ArgumentParser(
-    description='Rotate image according to EXIF metadata')
-parser.add_argument('--directory', '-d', type=str,
-                    help='image directory')
+parser = argparse.ArgumentParser(description="Rotate image according to EXIF metadata")
+parser.add_argument("--directory", "-d", type=str, help="image directory")
 
 
 def main(path) -> None:
@@ -22,7 +20,7 @@ def main(path) -> None:
         try:
             image = Image.open(filepath)
             for orientation in ExifTags.TAGS.keys():
-                if ExifTags.TAGS[orientation] == 'Orientation':
+                if ExifTags.TAGS[orientation] == "Orientation":
                     break
             exif = dict(image._getexif().items())
 
