@@ -92,7 +92,7 @@ for lang in language_list:
 
 
 @app.context_processor
-def inject_langauge() -> dict:
+def inject_language() -> dict:
     """Inject the strings of the selected laguage based on browser config"""
     lang = utils.choose_language(request, LANG)
     return {**LANG[DEFAULT_LANG], **LANG[lang]}
