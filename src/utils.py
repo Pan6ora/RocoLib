@@ -2,6 +2,7 @@ import datetime
 import json
 import math
 import os
+import ast
 from typing import Tuple, Union
 from urllib import parse as urlparse
 
@@ -106,16 +107,21 @@ def get_db_connection() -> Database:
     return g.database
 
 
-def make_boulder_data_valid_js(data: str) -> Data:
+def make_boulder_data_valid_js(data: str) -> dict:
     """
-    Replace boulder data from valid Python to valid JS
+    Safely parse Python dict string and convert it.
     """
-    # TODO: what should happen with wrong data types? raise an Exception?
-    if type(data) is not str:
+    if not isinstance(data, str):
         return dict()
-    return json.loads(
-        data.replace("'", '"').replace("True", "true").replace("False", "false")
-    )
+
+    try:
+        python_dict = ast.literal_eval(data)
+
+        return python_dict
+
+    except (ValueError, SyntaxError) as e:
+        print(f"Failed to parse data: {e}")
+        return dict()
 
 
 def get_current_gym(session, db):
