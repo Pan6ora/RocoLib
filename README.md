@@ -91,15 +91,22 @@ Once the container is up and running, the app can be accessed at http://localhos
    ```
    git clone https://github.com/javigallostra/RocoLib.git
    ```
-2. Install dependencies
+2. Install dependencies using poetry
    ```
-   pip install -r requirements.txt
+   pip install poetry
+   poetry install
    ```
-3. Set up [MongoDB](https://www.mongodb.com). This can either be a local instance of MongoDB or an instance running on the cloud. We are currently using MongoDB Atlas free tier.
-4. Configure MongoDB connection so that the application code can talk with the DDBB.
-5. Run
+3. Launch [MongoDB](https://www.mongodb.com) local instance
    ```
-   python application.py
+   docker compose up
+   ```
+4. Populate database with at least one wall
+   ```
+   python ./scripts/py/add_gym.py -c my_gym_name -n "My Gym Name" -i path/to/walls_images/folder --creds local
+   ```
+5. Run app locally
+   ```
+   python application.py local
    ```
 
 ## Links of interest
